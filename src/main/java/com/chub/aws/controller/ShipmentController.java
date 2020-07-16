@@ -22,22 +22,21 @@ public class ShipmentController {
         return shipmentFacade.createShipment(shipment);
     }
 
-    @GetMapping(path = "/{shipmentNumber}", produces = "application/json")
-    public Shipment getShipment(@PathVariable String shipmentNumber) {
-        return shipmentFacade.findShipmentByShipmentNumber(shipmentNumber)
-                .orElseThrow(() -> new ShipmentNotFoundException(shipmentNumber));
+    @GetMapping(path = "/{uuid}", produces = "application/json")
+    public Shipment getShipment(@PathVariable String uuid) {
+        return shipmentFacade.findShipmentById(uuid);
     }
 
-    @PutMapping(path = "", produces = "application/json")
-    public Shipment updateShipment(@RequestBody Shipment shipment) {
-        return shipmentFacade.updateShipment(shipment)
-                .orElseThrow(() -> new ShipmentNotFoundException(shipment.getShipmentNumber()));
+    @PutMapping(path = "/{uuid}", produces = "application/json")
+    public Shipment updateShipment(@RequestBody Shipment shipment, @PathVariable String uuid) {
+        return shipmentFacade.updateShipment(shipment, uuid);
+
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{shipmentNumber}")
-    public void deleteShipment(@PathVariable String shipmentNumber) {
-        shipmentFacade.deleteShipment(shipmentNumber);
+    @DeleteMapping("/{uuid}")
+    public void deleteShipment(@PathVariable String uuid) {
+        shipmentFacade.deleteShipment(uuid);
     }
 
     @ResponseBody

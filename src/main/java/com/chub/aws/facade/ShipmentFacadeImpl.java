@@ -1,5 +1,6 @@
 package com.chub.aws.facade;
 
+import com.chub.aws.exception.ShipmentNotFoundException;
 import com.chub.aws.model.Shipment;
 import com.chub.aws.service.impl.DynamoDbService;
 import com.chub.aws.service.impl.ElasticSearchService;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,36 +20,39 @@ public class ShipmentFacadeImpl implements ShipmentFacade {
     @Override
     @Transactional
     public Shipment createShipment(Shipment shipment) {
-        shipment.setId(UUID.randomUUID());
-        dynamoDbService.save(shipment);
-        return elasticSearchService.save(shipment);
+        Shipment shipmentWithId = dynamoDbService.save(shipment);
+        return elasticSearchService.save(shipmentWithId);
     }
 
     @Override
-    public Optional<Shipment> findShipmentByShipmentNumber(String shipmentNumber) {
-        return elasticSearchService.findByShipmentNumber(shipmentNumber);
+    public Shipment findShipmentById(String uuid) {
+        return elasticSearchService.findById(uuid)
+                .orElseThrow(() -> new ShipmentNotFoundException(uuid));
     }
 
     @Override
     @Transactional
-    public Optional<Shipment> updateShipment(Shipment updatedShipment) {
-        Optional<Shipment> shipmentOptional = elasticSearchService.findByShipmentNumber(updatedShipment.getShipmentNumber());
+    public Shipment updateShipment(Shipment updatedShipment, String uuid) {
+        Optional<Shipment> shipmentOptional = elasticSearchService.findById(uuid);
         if (shipmentOptional.isPresent()) {
             Shipment shipment = mapUpdatedFields(updatedShipment, shipmentOptional.get());
             dynamoDbService.save(shipment);
-            return Optional.of(elasticSearchService.save(shipment));
+            return elasticSearchService.save(shipment);
+        } else {
+            throw new ShipmentNotFoundException(uuid);
         }
-        return Optional.empty();
     }
 
     @Override
     @Transactional
-    public void deleteShipment(String shipmentNumber) {
-        elasticSearchService.findByShipmentNumber(shipmentNumber)
-                .ifPresent(shipment -> {
-                    dynamoDbService.deleteShipment(shipment);
-                    elasticSearchService.deleteShipment(shipment);
-                });
+    public void deleteShipment(String uuid) {
+        Optional<Shipment> shipmentOptional = elasticSearchService.findById(uuid);
+        if (shipmentOptional.isPresent()) {
+            dynamoDbService.deleteShipment(uuid);
+            elasticSearchService.deleteShipment(uuid);
+        } else {
+            throw new ShipmentNotFoundException(uuid);
+        }
     }
 
     private Shipment mapUpdatedFields(Shipment updatedShipment, Shipment shipment) {

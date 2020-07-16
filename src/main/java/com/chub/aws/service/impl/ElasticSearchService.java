@@ -16,9 +16,8 @@ public class ElasticSearchService implements ShipmentService {
 
     private final ElasticSearchRepository elasticSearchRepository;
 
-    public Optional<Shipment> findByShipmentNumber(String shipmentNumber) {
-        ShipmentDocument shipmentDocument = elasticSearchRepository.findByShipmentNumber(shipmentNumber);
-        return Optional.ofNullable(shipmentDocument)
+    public Optional<Shipment> findById(String uuid) {
+        return elasticSearchRepository.findById(uuid)
                 .map(this::toShipment);
     }
 
@@ -27,8 +26,8 @@ public class ElasticSearchService implements ShipmentService {
         return toShipment(elasticSearchRepository.save(shipmentDoc));
     }
 
-    public void deleteShipment(Shipment shipment) {
-        elasticSearchRepository.deleteByShipmentNumber(shipment.getShipmentNumber());
+    public void deleteShipment(String uuid) {
+        elasticSearchRepository.deleteById(uuid);
     }
 
     private Shipment toShipment(ShipmentDocument shipmentDocument) {

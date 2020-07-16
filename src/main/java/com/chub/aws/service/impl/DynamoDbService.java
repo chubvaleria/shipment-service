@@ -27,13 +27,12 @@ public class DynamoDbService implements ShipmentService {
         return toShipment(shipmentEntity);
     }
 
-    public void deleteShipment(Shipment shipment) {
-        dynamoDbShipmentRepository.delete(toShipmentEntity(shipment));
+    public void deleteShipment(String uuid) {
+        dynamoDbShipmentRepository.deleteById(uuid);
     }
 
     private ShipmentEntity toShipmentEntity(Shipment shipment) {
         ShipmentEntity shipmentEntity = new ShipmentEntity();
-        shipmentEntity.setId(shipment.getId().toString());
         shipmentEntity.setShipmentNumber(shipment.getShipmentNumber());
         shipmentEntity.setOriginLocationEntity(toLocationEntity(shipment.getOriginLocation()));
         shipmentEntity.setDestinationLocationEntity(toLocationEntity(shipment.getDestinationLocation()));

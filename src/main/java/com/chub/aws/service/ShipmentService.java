@@ -6,5 +6,5 @@ public interface ShipmentService {
 
     Shipment save(Shipment shipment);
 
-    void deleteShipment(Shipment shipment);
+    void deleteShipment(String uuid);
 }

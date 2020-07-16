@@ -2,15 +2,13 @@ package com.chub.aws.facade;
 
 import com.chub.aws.model.Shipment;
 
-import java.util.Optional;
-
 public interface ShipmentFacade {
 
     Shipment createShipment(Shipment shipment);
 
-    Optional<Shipment> findShipmentByShipmentNumber(String shipmentNumber);
+    Shipment findShipmentById(String uuid);
 
-    Optional<Shipment> updateShipment(Shipment shipment);
+    Shipment updateShipment(Shipment shipment, String uuid);
 
-    void deleteShipment(String shipmentNumber);
+    void deleteShipment(String uuid);
 }
