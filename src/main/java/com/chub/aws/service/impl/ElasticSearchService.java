@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.chub.aws.util.ShipmentUtils.getId;
-
 @Service
 @RequiredArgsConstructor
 public class ElasticSearchService implements ShipmentService {
@@ -46,7 +44,7 @@ public class ElasticSearchService implements ShipmentService {
 
     private ShipmentDocument toShipmentDocument(Shipment shipment) {
         ShipmentDocument shipmentDocument = new ShipmentDocument();
-        shipmentDocument.setId(getId(shipment.getId()));
+        shipmentDocument.setId(shipment.getId().toString());
         shipmentDocument.setShipmentNumber(shipment.getShipmentNumber());
         shipmentDocument.setOriginLocation(shipment.getOriginLocation());
         shipmentDocument.setDestinationLocation(shipment.getDestinationLocation());

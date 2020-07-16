@@ -2,39 +2,39 @@ package com.chub.aws;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.CreateTableResult;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
-import com.chub.aws.entity.ShipmentEntity;
 import com.chub.aws.facade.ShipmentFacade;
+import com.chub.aws.model.Location;
 import com.chub.aws.model.Shipment;
+import com.chub.aws.repository.dynamodb.DynamoDbShipmentRepository;
+import com.chub.aws.repository.elastic.ElasticSearchRepository;
 import com.chub.aws.service.impl.DynamoDbService;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.util.Optional;
 
-//import com.chub.aws.service.impl.ElasticSearchService;
-
-@Slf4j
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ShipmentServiceApplication.class)
-@WebAppConfiguration
-@ActiveProfiles("local")
-@TestPropertySource(properties = {
-        "amazon.dynamodb.endpoint=http://localhost:8000/",
-        "amazon.aws.accesskey=key",
-        "amazon.aws.secretkey=key2"})
+@ActiveProfiles("it")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {ShipmentServiceApplicationTests.Initializer.class})
 class ShipmentServiceApplicationTests {
+
+    @Container
+    public static GenericContainer<?> dynamoDbContainer = new GenericContainer<>("amazon/dynamodb-local:latest")
+            .withExposedPorts(8000);
+
+    @Container
+    public static ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer();
 
     private DynamoDBMapper dynamoDBMapper;
 
@@ -47,13 +47,21 @@ class ShipmentServiceApplicationTests {
     @Autowired
     ShipmentFacade shipmentFacade;
 
-    // @Autowired
-//    ElasticSearchService elasticSearchService;
+    @Autowired
+    DynamoDbShipmentRepository dynamoDbShipmentRepository;
 
+    @Autowired
+    ElasticSearchRepository elasticSearchRepository;
 
     @BeforeEach
-    public void setup() {
-        dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
+    public void cleanData() {
+        dynamoDbShipmentRepository.deleteAll();
+        elasticSearchRepository.deleteAll();
+    }
+
+    @BeforeClass
+    public static void setup() {
+       /* dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
         try {
             CreateTableRequest tableRequest = dynamoDBMapper
                     .generateCreateTableRequest(ShipmentEntity.class);
@@ -63,22 +71,21 @@ class ShipmentServiceApplicationTests {
             //dynamoDBMapper.batchDelete(dynamoDbService.findAll());
         } catch (ResourceInUseException e) {
             System.out.println("Table already created");
-        }
+        }*/
     }
 
     @Test
     public void test() {
-
-        Shipment shipment1 = new Shipment();
-        shipment1.setShipmentNumber("shipment#1");
-        shipmentFacade.createShipment(shipment1);
-
         Shipment shipment2 = new Shipment();
         shipment2.setShipmentNumber("shipment#2");
         shipmentFacade.createShipment(shipment2);
 
+        Location location = new Location();
+        location.setName("Kharkiv");
+
         Optional<Shipment> shipmentByShipmentNumber = shipmentFacade.findShipmentByShipmentNumber("shipment#2");
-        shipmentFacade.deleteShipment("shipment#2");
+        shipment2.setOriginLocation(location);
+        Optional<Shipment> shipment = shipmentFacade.updateShipment(shipment2);
         Optional<Shipment> shipmentByShipmentNumber2 = shipmentFacade.findShipmentByShipmentNumber("shipment#2");
 
         //Shipment save = dynamoDbService.save(shipment2);
@@ -87,5 +94,18 @@ class ShipmentServiceApplicationTests {
         // Optional<Shipment> byShipmentNumber = elasticSearchService.findByShipmentNumber("shipment#1");
         System.out.println("passed");
         // dynamoDbService.findById(save.getId().toString());
+    }
+
+    static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+
+        public void initialize(ConfigurableApplicationContext ctx) {
+            elasticsearchContainer.start();
+            dynamoDbContainer.start();
+            TestPropertyValues.of(
+                    "amazon.dynamodb.endpoint: " + dynamoDbContainer.getHost() + ":" + dynamoDbContainer.getMappedPort(8000),
+                    "amazon.elasticsearch.endpoint: " + elasticsearchContainer.getHttpHostAddress())
+                    .applyTo(ctx.getEnvironment());
+        }
     }
 }

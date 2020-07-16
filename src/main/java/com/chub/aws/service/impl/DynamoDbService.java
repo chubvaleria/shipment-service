@@ -16,8 +16,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.chub.aws.util.ShipmentUtils.getId;
-
 @Service
 @RequiredArgsConstructor
 public class DynamoDbService implements ShipmentService {
@@ -35,7 +33,7 @@ public class DynamoDbService implements ShipmentService {
 
     private ShipmentEntity toShipmentEntity(Shipment shipment) {
         ShipmentEntity shipmentEntity = new ShipmentEntity();
-        shipmentEntity.setId(getId(shipment.getId()));
+        shipmentEntity.setId(shipment.getId().toString());
         shipmentEntity.setShipmentNumber(shipment.getShipmentNumber());
         shipmentEntity.setOriginLocationEntity(toLocationEntity(shipment.getOriginLocation()));
         shipmentEntity.setDestinationLocationEntity(toLocationEntity(shipment.getDestinationLocation()));

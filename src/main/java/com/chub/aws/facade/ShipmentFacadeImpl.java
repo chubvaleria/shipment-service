@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class ShipmentFacadeImpl implements ShipmentFacade {
     @Override
     @Transactional
     public Shipment createShipment(Shipment shipment) {
+        shipment.setId(UUID.randomUUID());
         dynamoDbService.save(shipment);
         return elasticSearchService.save(shipment);
     }
@@ -30,24 +32,31 @@ public class ShipmentFacadeImpl implements ShipmentFacade {
 
     @Override
     @Transactional
-    public Optional<Shipment> updateShipment(Shipment shipment) {
-        Optional<Shipment> shipmentOptional = elasticSearchService.findByShipmentNumber(shipment.getShipmentNumber());
+    public Optional<Shipment> updateShipment(Shipment updatedShipment) {
+        Optional<Shipment> shipmentOptional = elasticSearchService.findByShipmentNumber(updatedShipment.getShipmentNumber());
         if (shipmentOptional.isPresent()) {
+            Shipment shipment = mapUpdatedFields(updatedShipment, shipmentOptional.get());
             dynamoDbService.save(shipment);
             return Optional.of(elasticSearchService.save(shipment));
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     @Override
     @Transactional
     public void deleteShipment(String shipmentNumber) {
-        Optional<Shipment> shipmentOptional = elasticSearchService.findByShipmentNumber(shipmentNumber);
-        if (shipmentOptional.isPresent()) {
-            Shipment shipment = shipmentOptional.get();
-            dynamoDbService.deleteShipment(shipment);
-            elasticSearchService.deleteShipment(shipment);
-        }
+        elasticSearchService.findByShipmentNumber(shipmentNumber)
+                .ifPresent(shipment -> {
+                    dynamoDbService.deleteShipment(shipment);
+                    elasticSearchService.deleteShipment(shipment);
+                });
+    }
+
+    private Shipment mapUpdatedFields(Shipment updatedShipment, Shipment shipment) {
+        shipment.setShipmentNumber(updatedShipment.getShipmentNumber());
+        shipment.setOriginLocation(updatedShipment.getOriginLocation());
+        shipment.setDestinationLocation(updatedShipment.getDestinationLocation());
+        shipment.setOrders(updatedShipment.getOrders());
+        return shipment;
     }
 }
