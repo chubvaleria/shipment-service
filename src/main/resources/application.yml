@@ -2,14 +2,6 @@ spring:
   application:
     name: shipment-service
 
-data:
-  dynamodb:
-    entity2ddl:
-      auto: none
-      gsiProjectionType: ALL
-      readCapacity: 10
-      writeCapacity: 1
-
 server:
   port: 12345
 

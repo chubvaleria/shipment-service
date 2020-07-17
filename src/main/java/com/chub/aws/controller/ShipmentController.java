@@ -4,11 +4,13 @@ import com.chub.aws.exception.ShipmentNotFoundException;
 import com.chub.aws.facade.ShipmentFacade;
 import com.chub.aws.model.Shipment;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
+import javax.validation.Valid;
+
+
 @RestController
 @RequestMapping("/shipments")
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class ShipmentController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "", consumes = "application/json", produces = "application/json")
-    public Shipment createOrUpdateShipment(@RequestBody Shipment shipment) {
+    public Shipment createOrUpdateShipment(@RequestBody @Valid Shipment shipment) {
         return shipmentFacade.createShipment(shipment);
     }
 
@@ -43,6 +45,13 @@ public class ShipmentController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ShipmentNotFoundException.class)
     public String shipmentNotFoundHandler(ShipmentNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public String invalidDataHandler(MethodArgumentNotValidException e) {
         return e.getMessage();
     }
 }
