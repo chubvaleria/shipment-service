@@ -1,0 +1,103 @@
+{
+	"info": {
+		"_postman_id": "c67e3150-3a9b-4fe6-b1d2-098cabcac0b0",
+		"name": "shipment-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"shipmentNumber\": \"shipment#123\",\n  \"originLocation\": {\n    \"name\": \"Kharkov\",\n    \"latitude\": 49.9935,\n    \"longitude\": 36.2304,\n    \"timezone\": null\n  },\n  \"destinationLocation\": {\n    \"name\": \"Kyiv\",\n    \"latitude\": 50.4501,\n    \"longitude\": 30.5234,\n    \"timezone\": null\n  },\n  \"orders\": [\n    {\n      \"orderNumber\": \"order#1\",\n      \"orderDescription\": \"Order Description\",\n      \"totalPrice\": 1200\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:12345/shipments",
+					"host": [
+						"localhost"
+					],
+					"port": "12345",
+					"path": [
+						"shipments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "READ",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:12345/shipments/1fc260cc-9fdb-4476-89b4-14b117fafa4a",
+					"host": [
+						"localhost"
+					],
+					"port": "12345",
+					"path": [
+						"shipments",
+						"1fc260cc-9fdb-4476-89b4-14b117fafa4a"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"4e781499-510e-4f31-b68e-70c41ccc812b\",\n    \"shipmentNumber\": \"shipment#123\",\n    \"originLocation\": {\n        \"name\": \"Kharkov\",\n        \"latitude\": 49.9935,\n        \"longitude\": 36.2304,\n        \"timezone\": null\n    },\n    \"destinationLocation\": {\n        \"name\": \"Kyiv\",\n        \"latitude\": 50.4501,\n        \"longitude\": 30.5234,\n        \"timezone\": null\n    },\n    \"orders\": [\n        {\n            \"orderNumber\": \"order#1\",\n            \"orderDescription\": \"Order1 Description\",\n            \"totalPrice\": 1200.0\n        },\n        {\n            \"orderNumber\": \"order#2\",\n            \"orderDescription\": \"Order2 Description\",\n            \"totalPrice\": 4300.0\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:12345/shipments/3711c29b-e16b-4cf2-969e-e4c6c0b69938",
+					"host": [
+						"localhost"
+					],
+					"port": "12345",
+					"path": [
+						"shipments",
+						"3711c29b-e16b-4cf2-969e-e4c6c0b69938"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:12345/shipments/3711c29b-e16b-4cf2-969e-e4c6c0b69938",
+					"host": [
+						"localhost"
+					],
+					"port": "12345",
+					"path": [
+						"shipments",
+						"3711c29b-e16b-4cf2-969e-e4c6c0b69938"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

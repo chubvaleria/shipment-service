@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: it
+  application:
+      name: shipment-service-it
+
+server:
+  port: 123456
+
+logging:
+  level:
+    root: INFO
+    org.testcontainers: INFO
+
+amazon:
+  aws:
+    accessKey: localaccesskey
+    secretKey: localsecretkey
+  dynamodb:
+    endpoint:  OVERRIDDEN_IN_TEST
+  elasticsearch:
+    endpoint: OVERRIDDEN_IN_TEST

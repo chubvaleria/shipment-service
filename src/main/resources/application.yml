@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: shipment-service
+
+server:
+  port: 12345
+
+logging:
+  level:
+    root: INFO
+
+amazon:
+  aws:
+    accessKey: localaccesskey
+    secretKey: localsecretkey
+  dynamodb:
+    endpoint: http://localhost:8000
+  elasticsearch:
+    endpoint: localhost:9200
+

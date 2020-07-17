@@ -1,0 +1,44 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    elasticsearchVersion = "7.8.0"
+    lombokVersion = "1.18.12"
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.3.1.RELEASE'
+
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.11.762'
+    implementation 'com.github.derjust:spring-data-dynamodb:5.1.0'
+
+    implementation "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
+    implementation "org.elasticsearch.client:elasticsearch-rest-client:${elasticsearchVersion}"
+    implementation "org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticsearchVersion}"
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-elasticsearch', version: '2.3.1.RELEASE'
+
+    implementation 'org.json:json:20160810'
+    implementation 'com.google.guava:guava:29.0-jre'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:testcontainers:1.14.3'
+    testImplementation "org.testcontainers:elasticsearch:1.14.3"
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.testcontainers:junit-jupiter:1.14.3'
+
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
