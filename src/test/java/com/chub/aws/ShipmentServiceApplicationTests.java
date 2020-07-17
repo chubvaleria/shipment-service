@@ -63,15 +63,8 @@ class ShipmentServiceApplicationTests {
     @BeforeEach
     public void setup() {
         DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(amazonDynamoDB);
-        try {
-            CreateTableRequest tableRequest = dynamoDBMapper
-                    .generateCreateTableRequest(ShipmentEntity.class);
-            tableRequest.setProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
-            amazonDynamoDB.createTable(tableRequest);
-            cleanUp();
-        } catch (ResourceInUseException e) {
-            System.out.println("Table already created");
-        }
+        createTable(dynamoDBMapper);
+        cleanUp();
     }
 
     @Test
@@ -139,6 +132,18 @@ class ShipmentServiceApplicationTests {
         mockMvc.perform(MockMvcRequestBuilders
                 .delete("/shipments/{uuid}", shipmentWithId.getId()))
                 .andExpect(status().isNoContent());
+    }
+
+    private void createTable(DynamoDBMapper dynamoDBMapper) {
+        try {
+            CreateTableRequest tableRequest = dynamoDBMapper
+                    .generateCreateTableRequest(ShipmentEntity.class);
+            tableRequest.setProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
+            amazonDynamoDB.createTable(tableRequest);
+
+        } catch (ResourceInUseException e) {
+            System.out.println("Table already created");
+        }
     }
 
     private void cleanUp() {
